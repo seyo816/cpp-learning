@@ -155,3 +155,4 @@ swarm leave 后，manage上面显示为Down，然后执行： docker node rm vqh
 
 
 https://raw.githubusercontent.com/vfarcic/docker-flow-proxy/master/docker-compose-stack.yml
+https://github.com/vfarcic/docker-flow-proxy
