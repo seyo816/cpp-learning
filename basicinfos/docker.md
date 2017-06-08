@@ -1,5 +1,4 @@
-
-####安装：docker 17.03.1-ce
+#### 安装：docker 17.03.1-ce
 ```
 yum install -y yum-utils
 yum-config-manager \
@@ -11,7 +10,7 @@ yum remove docker #删除
 yum update docker #更新
 ```
 
-####安装：docker-machine
+#### 安装：docker-machine
 让你轻松部署Docker实例到很多不同的平台。
  https://docs.docker.com/machine/install-machine/ https://github.com/docker/machine
 
@@ -21,7 +20,7 @@ curl -L https://github.com/docker/machine/releases/download/v0.12.0/docker-machi
   cp /tmp/docker-machine /usr/local/bin/docker-machine
 ```
 
-####安装：docker-compose
+#### 安装：docker-compose
 ```
  https://docs.docker.com/compose/install/  https://github.com/docker/compose
 curl -L https://github.com/docker/compose/releases/download/1.13.0/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose &&
@@ -29,7 +28,7 @@ chmod +x /usr/local/bin/docker-compose
 
 pip install docker-compose
 ```
-####MAC下安装
+#### MAC下安装
 
 * MAC下安装：https://download.docker.com/mac/stable/Docker.dmg 下载后直接安装即可。然后再命令行访问。默认包含上面几个命令。
 * VirtualBox安装
@@ -38,12 +37,12 @@ docker-Containerd
 是Docker开源的众多项目中的新成员，这些项目包括libcontainer、libnetwork、notary、runC、HyperKit、VPNkit、Datakit、swarmkit和Infrakit等。
 
 
-####配置daodocker镜像
+#### 配置daodocker镜像
 * http://guide.daocloud.io/dcs/daocloud-9153151.html
 curl -sSL https://get.daocloud.io/daotools/set_mirror.sh | sh -s http://8cca9139.m.daocloud.io
 
 
-####参考资源
+#### 参考资源
 * [Docker run执行流详解（以volume，network和libcontainer为线索）](http://blog.csdn.net/gao514916467/article/details/51201932)
 * [理解Docker（3）：Docker 使用 Linux namespace 隔离容器的运行环境](http://www.cnblogs.com/sammyliu/p/5878973.html)
 * [理解Docker（4）：Docker 容器使用 cgroups 限制资源使用](http://www.cnblogs.com/sammyliu/p/5886833.html)
@@ -77,7 +76,7 @@ docker compose：
 管理docker容器，协同调用。
 
 
-####docker-machine 测试
+#### docker-machine 测试
 ```
 docker-machine create --driver virtualbox my-machine
 docker-machine ls
@@ -97,8 +96,8 @@ docker $(docker-machine config aws-machine) run busybox echo hello world
 docker-machine create --engine-registry-mirror=$ALI_MIRROR
 ```
 
-####docker swarm测试
-#####实例一
+#### docker swarm测试
+##### 实例一
 * [实战】Docker Machine + Compose + Swarm](http://dockone.io/article/275)
 ```
 docker-machine create --driver virtualbox m1
@@ -121,7 +120,7 @@ docker-machine create \
 swarm-node1
 ```
 
-#####示例二
+##### 示例二
 ```
 [leader机器]
 docker swarm init --advertise-addr 192.168.99.100

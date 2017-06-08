@@ -1,4 +1,4 @@
-####基础工具安装
+#### 基础工具安装
 ```
 #基础插件
 yum -y install lrzsz screen tree git unzip wget
@@ -21,7 +21,7 @@ yum -y install devtoolset-6-gcc devtoolset-6-gcc-c++
 #source /opt/rh/devtoolset-4/enable
 source /opt/rh/devtoolset-6/enable
 
-#网络工具
+# 网络工具
 yum -y install bridge-utils
 yum install net-tools
 yum install iproute
@@ -35,13 +35,13 @@ chmod 777 configure && ./configure && make && make install
 
 ```
 
-####测试网络命令
+#### 测试网络命令
 ```
 nali-mtr -r -c 10 -n www.baidu.com
 
 ```
 
-####测试网络路由
+#### 测试网络路由
 ```
 #添加bridge
 brctl addbr bdocker
