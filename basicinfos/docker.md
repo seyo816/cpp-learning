@@ -152,3 +152,6 @@ docker swarm join \
 swarm leave 后，manage上面显示为Down，然后执行： docker node rm vqhl8gv1yhjbd32mtkyp60egf 真实删除
 
 ```
+
+
+https://raw.githubusercontent.com/vfarcic/docker-flow-proxy/master/docker-compose-stack.yml
