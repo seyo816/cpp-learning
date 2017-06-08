@@ -36,8 +36,10 @@ chmod 777 configure && ./configure && make && make install
 ```
 
 ####测试网络命令
+```
 nali-mtr -r -c 10 -n www.baidu.com
 
+```
 
 ####测试网络路由
 ```
