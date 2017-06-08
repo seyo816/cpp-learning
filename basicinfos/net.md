@@ -1,11 +1,42 @@
 ####基础工具安装
 ```
+#基础插件
+yum -y install lrzsz screen tree git unzip wget
+yum install epel-release -y #先安装epel源
+yum install python-pip -y #然后就可以通过yum install python-X来安装python的X库了
+pip install --upgrade pip #升级pip到最新版本
+
+#监控工具
+yum -y install iotop sysstat htop iftop strace
+
+#编译工具
+yum -y install automake cmake  autoconf  libtool
+
+#安装多版本GCC:GCC4.9，GCC5.3，GCC6.2
+yum -y install centos-release-scl-rh
+#yum install devtoolset-3-gcc devtoolset-3-gcc-c++
+#yum install devtoolset-4-gcc devtoolset-4-gcc-c++
+yum -y install devtoolset-6-gcc devtoolset-6-gcc-c++
+#source /opt/rh/devtoolset-3/enable
+#source /opt/rh/devtoolset-4/enable
+source /opt/rh/devtoolset-6/enable
+
+#网络工具
 yum -y install bridge-utils
 yum install net-tools
 yum install iproute
-yum install mtr
+yum install mtr # brew install mtr
 yum install traceroute
+
+#安装ip地址显示版本
+git clone https://github.com/dzxx36gyy/nali-ipip.git
+cd nali-ipip
+chmod 777 configure && ./configure && make && make install
+
 ```
+
+####测试网络命令
+nali-mtr -r -c 10 -n www.baidu.com
 
 
 ####测试网络路由
