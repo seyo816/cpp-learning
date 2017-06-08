@@ -51,15 +51,17 @@ curl -sSL https://get.daocloud.io/daotools/set_mirror.sh | sh -s http://8cca9139
 
 docker run -it  --rm --blkio-weight 100 --memory 10M --cpu-quota 25000 --cpu-period 2000 --cpu-shares 30 ubuntu:16.04 "/bin/bash"
 
-####DOCKER命令：
+####  DOCKER命令：
+```
 systemctl start docker
 docker --version/version/info
 docker images
 docker ps -al
 docker run hello-world  / --help
 docker inspect/rm/stop/start 91c95931e552
-
 docker exec -it web31 ps -efdocker-machine ls
+
+```
 
 （1）docker swarm：集群管理，子命令有init, join, leave, update
 （2）docker service：服务创建，子命令有create, inspect, update, remove, tasks
