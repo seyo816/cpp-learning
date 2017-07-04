@@ -1,3 +1,5 @@
+http://www.dockerinfo.net/4323.html
+
 #### 安装：docker 17.03.1-ce
 ```
 yum install -y yum-utils
@@ -41,6 +43,8 @@ docker-Containerd
 * http://guide.daocloud.io/dcs/daocloud-9153151.html
 curl -sSL https://get.daocloud.io/daotools/set_mirror.sh | sh -s http://8cca9139.m.daocloud.io
 
+#### docker.service
+/usr/lib/systemd/system/docker.service
 
 #### 参考资源
 * [Docker run执行流详解（以volume，network和libcontainer为线索）](http://blog.csdn.net/gao514916467/article/details/51201932)
@@ -60,6 +64,9 @@ docker ps -al
 docker run hello-world  / --help
 docker inspect/rm/stop/start 91c95931e552
 docker exec -it web31 ps -efdocker-machine ls
+
+docker run -it --rm  busybox /bin/sh
+
 
 ```
 
@@ -98,8 +105,9 @@ docker $(docker-machine config aws-machine) run busybox echo hello world
 docker-machine create --engine-registry-mirror=$ALI_MIRROR
 ```
 
-#### docker swarm测试
+#### docker swarm测试 swarm mode
 ##### 实例一
+* 一代模式（docker swarm） 单独运行swarm 镜像
 * [实战】Docker Machine + Compose + Swarm](http://dockone.io/article/275)
 ```
 docker-machine create --driver virtualbox m1
@@ -123,8 +131,10 @@ swarm-node1
 ```
 
 ##### 示例二
+* 二代模式（docker swarm model） docker engine 已经集成了 swarm
 ```
 [leader机器]
+docker-machine create --driver virtualbox my-machine
 docker swarm init --advertise-addr 192.168.99.100
 docker node ls
 docker service ls
@@ -146,13 +156,133 @@ docker node update --availability active my-machine
 docker network ls
 
 [node机器]
+docker-machine create --driver virtualbox my-machine-node
+docker-machine create --driver virtualbox my-machine-node2
+docker-machine create --driver virtualbox my-machine-node3
 docker swarm join \
    --token SWMTKN-1-1k5y4awovd242yzk44vfc8ryrmxzi9gytfce4chh7g7589cjb8-7j4pl7dwbhobqaifuzd3ahivo \
    192.168.99.100:2377
 swarm leave 后，manage上面显示为Down，然后执行： docker node rm vqhl8gv1yhjbd32mtkyp60egf 真实删除
 
+* 扩展
+docker swarm init --auto-accept manager --auto-accept worker --listen-addr $MANAGER1_IP:2377
+docker swarm join --manager --listen-addr $MANAGER2_IP:2377 $MANAGER1_IP:2377
+docker swarm join --listen-addr $WORKER2_IP:2377 $MANAGER1_IP:2377
+http://www.cnblogs.com/linuxprobe/p/5735264.html 配置自动连接，无需要额外参数。
+
+docker swarm init --help
+--advertise-addr选项是设置监听的IP和端口 如果机器有多个ip地址要指定--adverties-addr选择一个ip。正常--listen-addr就够了了。
+
+
+```
+* 支持overlay 主机发现 ，确认 7946 4789 端口开放
+https://testerhome.com/topics/6904
+[Docker问答录(93 问)](https://www.hi-linux.com/posts/36556.html)
 ```
 
 
+docker network create   --driver overlay --subnet 10.1.1.0/24 --opt encrypted --attachable tmp-nginx-network
+docker  network ls
+docker  network inspect tmp-nginx-network
+
+#--attachable 这个网络是可以被普通容器所连接的  errros: network tmp-nginx-network not manually attachable
+[master]
+docker run --name tmp_nginx1 --net tmp-nginx-network -d nginx
+docker exec tmp_nginx1 ip a
+docker exec tmp_nginx1 ping 10.1.1.2
+[node]
+docker run --name tmp_nginx2 --net tmp-nginx-network -d nginx
+docker exec tmp_nginx2 ip a
+docker exec tmp_nginx2 ping 10.1.1.3
+
+```
+
+#### 示例三
+* 一代模式（docker swarm） 单独运行swarm 镜像， 集成了kv ，支持overlay
+```
+#!/bin/bash
+
+set -e
+
+create_kv() {
+    echo Creating kvstore machine.
+    docker-machine create -d virtualbox \
+        --engine-opt="registry-mirror=http://houchaohann.m.alauda.cn" \
+        kvstore
+    docker $(docker-machine config kvstore) run -d \
+        -p "8500:8500" \
+        progrium/consul --server -bootstrap-expect 1
+}
+
+create_master() {
+    echo Creating cluster master
+    kvip=$(docker-machine ip kvstore)
+
+    docker-machine create -d virtualbox \
+        --swarm --swarm-master \
+        --swarm-discovery="consul://${kvip}:8500" \
+        --engine-opt="cluster-store=consul://${kvip}:8500" \
+        --engine-opt="cluster-advertise=eth1:2376" \
+        --engine-opt="registry-mirror=http://houchaohann.m.alauda.cn" \
+        swarm-manager
+}
+
+create_nodes(){
+    kvip=$(docker-machine ip kvstore)
+    echo Creating cluster nodes
+    for i in 1 2; do
+        docker-machine create -d virtualbox \
+            --swarm \
+            --swarm-discovery="consul://${kvip}:8500" \
+            --engine-opt="cluster-store=consul://${kvip}:8500" \
+            --engine-opt="cluster-advertise=eth1:2376" \
+            --engine-opt="registry-mirror=http://houchaohann.m.alauda.cn" \
+            swarm-node${i}
+    done
+}
+
+
+teardown(){
+    docker-machine rm kvstore -y
+    docker-machine rm -y swarm-manager
+    for i in 1 2; do
+        docker-machine rm -y swarm-node${i}
+    done
+}
+
+case $1 in
+    up)
+        create_kv
+        create_master
+        create_nodes
+        ;;
+    down)
+        teardown
+        ;;
+    *)
+        echo "Unknow command..."
+        exit 1
+        ;;
+esac
+
+
+运行 ./cluster.sh up 就能自动生成四台机器：
+一台 kvstore运行 consul 服务
+一台 swarm master 机器，运行 swarm manager 服务
+两台 swarm node 机器，都是运行了 swarm node 服务和 docker daemon 服务
+
+eval $(docker-machine env --swarm swarm-manager)
+docker info
+
+```
+```
+docker run -d \
+        -p "8500:8500" \
+        progrium/consul --server -bootstrap-expect 1
+
+```
+
 https://raw.githubusercontent.com/vfarcic/docker-flow-proxy/master/docker-compose-stack.yml
 https://github.com/vfarcic/docker-flow-proxy
+
+openresty  coding.net
